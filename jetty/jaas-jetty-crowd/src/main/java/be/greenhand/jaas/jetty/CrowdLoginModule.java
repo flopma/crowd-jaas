@@ -37,10 +37,11 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.log4j.Logger;
 import org.eclipse.jetty.plus.jaas.JAASPrincipal;
 import org.eclipse.jetty.plus.jaas.JAASRole;
 import org.eclipse.jetty.plus.jaas.callback.ObjectCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import be.greenhand.jaas.jetty.jaxb.AuthenticatePost;
 import be.greenhand.jaas.jetty.jaxb.GroupResponse;
@@ -48,7 +49,6 @@ import be.greenhand.jaas.jetty.jaxb.GroupsResponse;
 import be.greenhand.jaas.jetty.jaxb.UserResponse;
 
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.client.apache.ApacheHttpClient;
@@ -57,7 +57,7 @@ import com.sun.jersey.client.apache.config.ApacheHttpClientState;
 import com.sun.jersey.client.apache.config.DefaultApacheHttpClientConfig;
 
 public class CrowdLoginModule implements LoginModule {
-	private static final Logger LOG = Logger.getLogger(CrowdLoginModule.class);
+	private static final Logger LOG = LoggerFactory.getLogger(CrowdLoginModule.class);
 	
 	private static final String APP_NAME = "applicationName";
 	private static final String APP_PASS = "applicationPassword";
@@ -130,16 +130,13 @@ public class CrowdLoginModule implements LoginModule {
 				authenticated = false;
 			}
 			
-			authenticated = authenticate(username, password);
+			authenticate(username, password);
+			authenticated = true;
 		} catch (Exception e) {
-			LOG.error(e);
-			throw new LoginException(e.getMessage());
+			LOG.error("login()", e);
+			throw new FailedLoginException(e.getMessage());
 		}
-		
-		if (!authenticated) {
-			throw new FailedLoginException();
-		}
-		
+
 		return authenticated;
 	}
 
@@ -159,21 +156,22 @@ public class CrowdLoginModule implements LoginModule {
 			
 			// create Jetty JAASRole
 			rolePrincipals = getUserGroups(currentUser.name);
-						
+			
 			// update Subject
 			subject.getPrincipals().add(userPrincipal);
 			subject.getPrincipals().addAll(rolePrincipals);
 			
+			if (LOG.isDebugEnabled()) {
+				LOG.debug(subject.toString());
+			}
+			
 			commited = true;
+			return commited;
 		} catch (Exception e) {
 			LOG.error("JAAS commit() failure", e);
-			throw new LoginException(e.getMessage());
-			
-		} finally {
 			resetStateData();
+			throw new LoginException(e.getMessage());
 		}
-		
-		return commited;
 	}
 
 	/**
@@ -273,29 +271,21 @@ public class CrowdLoginModule implements LoginModule {
 	
 	/**
 	 * Makes REST call toward Crowd to authenticate user
-	 * @return <code>true</code> if authenticated by Crowd
-	 * @throws UnsupportedEncodingException 
 	 */
-	private boolean authenticate(String username, String pass) throws RemoteException, UnsupportedEncodingException {
+	private void authenticate(String username, String pass) throws RemoteException, UnsupportedEncodingException {
 		if (LOG.isDebugEnabled()) LOG.debug("authentication attempt for '" + String.valueOf(username) + "'");
 		
 		WebResource r = client.resource(crowdServer.resolve("authentication?username=" + URLEncoder.encode(username, "UTF-8")));
 		
 		AuthenticatePost rBody = new AuthenticatePost();
 		rBody.value = pass;
-		try {
-			UserResponse response = r.accept(MediaType.APPLICATION_XML_TYPE).post(UserResponse.class, rBody);
-			
-			if (LOG.isDebugEnabled()) LOG.debug(response.toString());
-			
-			LOG.info("authentication made for '" + String.valueOf(username) + "'");
-			
-			currentUser = response;
-			return true;
-		} catch (UniformInterfaceException uie) {
-			LOG.debug(uie);
-			return false;
-		}
+		UserResponse response = r.accept(MediaType.APPLICATION_XML_TYPE).post(UserResponse.class, rBody);
+		
+		if (LOG.isDebugEnabled()) LOG.debug(response.toString());
+		
+		LOG.info("authentication made for '" + String.valueOf(username) + "'");
+		
+		currentUser = response;
 	}
 	
 	/**
@@ -315,7 +305,11 @@ public class CrowdLoginModule implements LoginModule {
 		
 		Set<JAASRole> results = new HashSet<JAASRole>();
 		for (GroupResponse group : response.group) {
-			if (group.active) {
+			// check if group is active
+			r = client.resource(crowdServer.resolve("group?groupname=" + URLEncoder.encode(group.name, "UTF-8")));
+			GroupResponse groupResponse = r.get(GroupResponse.class);
+			
+			if (groupResponse.active) {
 				results.add(new JAASRole(group.name));
 			}
 		}
