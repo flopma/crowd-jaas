@@ -16,7 +16,7 @@ mvn package
 </code></pre>
 </li>
 <li>Uncompress the zip target/jaas-jetty-crowd-<version>-jar-with-dependencies-packed.zip in folder server/lib</li>
-<li>Setup [JAAS LoginModule](http://rundeck.org/docs/administration/authenticating-users.html) to contain the following settings
+<li>Setup <a href="http://rundeck.org/docs/administration/authenticating-users.html">JAAS LoginModule</a> to contain the following settings
 <pre><code>be.greenhand.jaas.jetty.CrowdLoginModule sufficient
 	applicationName="rundeck"
 	applicationPassword="a password"
@@ -40,5 +40,5 @@ If Rundeck needs to connect to Crowd through a proxy, use the following settings
 </code></pre>
 </li>
 <li>Setup Crowd to accept requests from rundeck</li>
-<li>Setup Crowd and rundeck to allow authorization to happen (Crowd groups / [Rundeck ACL policies](http://rundeck.org/docs/administration/access-control-policy.html))</li>
+<li>Setup Crowd and rundeck to allow authorization to happen (Crowd groups / <a href="http://rundeck.org/docs/administration/access-control-policy.html">Rundeck ACL Policies</a>)</li>
 </ol>
