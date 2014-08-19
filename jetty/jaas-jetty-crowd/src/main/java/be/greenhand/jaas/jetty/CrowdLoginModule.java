@@ -383,7 +383,7 @@ public class CrowdLoginModule implements LoginModule {
 				if (LOG.isDebugEnabled())
 					LOG.debug("Adding suplemental role: " + role);
 				rolesRet.add(new JAASRole(role));
-            }
+			}
 		} else {
 			if (LOG.isDebugEnabled())
 				LOG.debug("Adding default suplemental role: " + defaultValue);
