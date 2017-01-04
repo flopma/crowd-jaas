@@ -37,9 +37,9 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.ws.rs.core.MediaType;
 
-import org.eclipse.jetty.plus.jaas.JAASPrincipal;
-import org.eclipse.jetty.plus.jaas.JAASRole;
-import org.eclipse.jetty.plus.jaas.callback.ObjectCallback;
+import org.eclipse.jetty.jaas.JAASPrincipal;
+import org.eclipse.jetty.jaas.JAASRole;
+import org.eclipse.jetty.jaas.callback.ObjectCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +97,6 @@ public class CrowdLoginModule implements LoginModule {
 	/**
 	 * @see javax.security.auth.spi.LoginModule#initialize(javax.security.auth.Subject, javax.security.auth.callback.CallbackHandler, java.util.Map, java.util.Map)
 	 */
-	@Override
 	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
 		this.subject = subject;
 		this.callbackHandler = callbackHandler;
@@ -113,7 +112,6 @@ public class CrowdLoginModule implements LoginModule {
 	/**
 	 * @see javax.security.auth.spi.LoginModule#login()
 	 */
-	@Override
 	public boolean login() throws LoginException {
 		try {
 			if (callbackHandler == null) {
@@ -143,7 +141,6 @@ public class CrowdLoginModule implements LoginModule {
 	/**
 	 * @see javax.security.auth.spi.LoginModule#commit()
 	 */
-	@Override
 	public boolean commit() throws LoginException {
 		if (!authenticated) {
 			resetStateData();
@@ -177,7 +174,6 @@ public class CrowdLoginModule implements LoginModule {
 	/**
 	 * @see javax.security.auth.spi.LoginModule#abort()
 	 */
-	@Override
 	public boolean abort() throws LoginException {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug(String.format("abort called - previous login state: [%b]", authenticated));
@@ -186,11 +182,12 @@ public class CrowdLoginModule implements LoginModule {
 		try {
 			if (!authenticated) {
 				return false;
-			} else {
-				resetStateData();
-
-				return true;
 			}
+			
+			resetStateData();
+
+			return true;
+
 		} catch (Exception e) {
 			LOG.error("JAAS abort() failure", e);
 			throw new LoginException(e.getMessage());
@@ -200,7 +197,6 @@ public class CrowdLoginModule implements LoginModule {
 	/**
 	 * @see javax.security.auth.spi.LoginModule#logout()
 	 */
-	@Override
 	public boolean logout() throws LoginException {
 		// remove JAASRole from subject
 		subject.getPrincipals().remove(userPrincipal);
@@ -272,7 +268,7 @@ public class CrowdLoginModule implements LoginModule {
 	/**
 	 * Makes REST call toward Crowd to authenticate user
 	 */
-	private void authenticate(String username, String pass) throws RemoteException, UnsupportedEncodingException {
+	private void authenticate(String username, String pass) throws UnsupportedEncodingException {
 		if (LOG.isDebugEnabled()) LOG.debug("authentication attempt for '" + String.valueOf(username) + "'");
 
 		WebResource r = client.resource(crowdServer.resolve("authentication?username=" + URLEncoder.encode(username, "UTF-8")));
@@ -336,10 +332,10 @@ public class CrowdLoginModule implements LoginModule {
 
 				return new Integer(defaultVal);
 			}
-		} else {
-			// default - 5000 msecs
-			return new Integer(defaultVal);
 		}
+
+		// default - 5000 msecs
+		return new Integer(defaultVal);
 	}
 
 	private Integer getHttpMaxConnections() {
@@ -356,10 +352,10 @@ public class CrowdLoginModule implements LoginModule {
 				// default - 20
 				return new Integer(defaultVal);
 			}
-		} else {
-			// default - 20
-			return new Integer(defaultVal);
 		}
+
+		// default - 20
+		return new Integer(defaultVal);
 	}
 
 	private String getCrowdServerUrl() {
@@ -367,13 +363,13 @@ public class CrowdLoginModule implements LoginModule {
 		if (object != null) {
 			return (String) object;
 
-		} else {
-			throw new RuntimeException("JAAS config for Crowd is missing the crowd url which should look like https://a.domain.com/crowd/");
 		}
+		
+		throw new RuntimeException("JAAS config for Crowd is missing the crowd url which should look like https://a.domain.com/crowd/");
 	}
 
 	private Set<JAASRole> getSupplementalRoles() {
-		Set rolesRet = new HashSet();
+		Set<JAASRole> rolesRet = new HashSet<JAASRole>();
 		String defaultValue = "user";
 		Object object = options.get(SUPPLEMENTAL_ROLES);
 		if (object != null) {
@@ -389,6 +385,7 @@ public class CrowdLoginModule implements LoginModule {
 				LOG.debug("Adding default suplemental role: " + defaultValue);
 			rolesRet.add(new JAASRole(defaultValue));
 		}
+		
 		return rolesRet;
 	}
 
@@ -397,9 +394,9 @@ public class CrowdLoginModule implements LoginModule {
 		if (object != null) {
 			return (String) object;
 
-		} else {
-			throw new RuntimeException("JAAS config for Crowd is missing the crowd application name (app username in crowd)");
 		}
+		
+		throw new RuntimeException("JAAS config for Crowd is missing the crowd application name (app username in crowd)");
 	}
 
 	private String getApplicationPassword() {
@@ -407,9 +404,9 @@ public class CrowdLoginModule implements LoginModule {
 		if (object != null) {
 			return (String) object;
 
-		} else {
-			throw new RuntimeException("JAAS config for Crowd is missing the crowd application password (app password in crowd)");
 		}
+
+		throw new RuntimeException("JAAS config for Crowd is missing the crowd application password (app password in crowd)");
 	}
 
 	private String getHttpProxyHost() {
@@ -417,9 +414,9 @@ public class CrowdLoginModule implements LoginModule {
 		if (object != null) {
 			return (String) object;
 
-		} else {
-			return "";
 		}
+
+		return "";
 	}
 
 	private String getHttpProxyUsername() {
@@ -439,9 +436,8 @@ public class CrowdLoginModule implements LoginModule {
 			} catch (NumberFormatException nfe) {
 				throw new RuntimeException("JAAS config for Crowd http proxy port must be a number", nfe);
 			}
-		} else {
-			return -1;
 		}
 
+		return -1;
 	}
 }

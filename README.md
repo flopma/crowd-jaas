@@ -2,12 +2,15 @@ JAAS LoginModule for Crowd
 
 ---
 
-This repository contains a JAAS LoginModule for Jetty which integrates with Atlassian Crowd. The need is to run [Rundeck](http://rundeck.org) against Crowd. But it should be usable for any other application compatible with JAAS/Jetty
+This repository contains a JAAS LoginModule for Jetty version 9 which integrates with Atlassian Crowd.
+If you are looking for the Rundeck compatible version of this code, take a look at the available branches.
 
 <ol>
 <li>Clone the source
 
-<pre><code>$ git clone -v --progress https://github.com/flopma/crowd-jaas.git /your/working/folder</code></pre>
+<pre><code>$ git clone -v --progress https://github.com/flopma/crowd-jaas.git
+$ cd crowd-jaas
+$ git checkout jetty-9</code></pre>
 
 </li>
 <li>Build the jar from the source
