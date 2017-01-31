@@ -361,7 +361,11 @@ public class CrowdLoginModule implements LoginModule {
 	private String getCrowdServerUrl() {
 		Object object = options.get(CROWD_SERVER_URL);
 		if (object != null) {
-			return (String) object;
+		    String baseUrl = (String) object;
+            if (!baseUrl.endsWith("/")) {
+                baseUrl += "/";
+            }
+            return baseUrl;
 
 		}
 		
