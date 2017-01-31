@@ -17,7 +17,7 @@ $ git checkout rundeck-2.7</code></pre>
 mvn package
 </code></pre>
 </li>
-<li>Uncompress the zip target/jaas-jetty-crowd-<version>-jar-with-dependencies-packed.zip in folder server/lib</li>
+<li>Uncompress the zip target/jaas-jetty-crowd-<version>-jar-with-dependencies-packed.zip in folder server/lib (when using the RPM package, uncompress it in /var/lib/rundeck/exp/webapp/WEB-INF/lib)</li>
 <li>Setup <a href="http://rundeck.org/docs/administration/authenticating-users.html">JAAS LoginModule</a> to contain the following settings
 <pre><code>be.greenhand.jaas.jetty.CrowdLoginModule sufficient
 	applicationName="rundeck"
