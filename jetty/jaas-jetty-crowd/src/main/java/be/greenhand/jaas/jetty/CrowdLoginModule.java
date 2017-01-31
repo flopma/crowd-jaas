@@ -359,7 +359,11 @@ public class CrowdLoginModule implements LoginModule {
 	private String getCrowdServerUrl() {
 		Object object = options.get(CROWD_SERVER_URL);
 		if (object != null) {
-			return (String) object;
+		    String baseUrl = (String) object;
+		    if (!baseUrl.endsWith("/")) {
+		        baseUrl += "/";
+		    }
+			return baseUrl;
 			
 		} else {
 			throw new RuntimeException("JAAS config for Crowd is missing the crowd url which should look like https://a.domain.com/crowd/");
