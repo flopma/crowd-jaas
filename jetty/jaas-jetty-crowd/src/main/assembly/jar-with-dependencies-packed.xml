@@ -24,14 +24,14 @@
   xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
   <id>jar-with-dependencies-packed</id>
   <formats>
-    <format>zip</format>
+    <format>jar</format>
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
   <dependencySets>
     <dependencySet>
       <outputDirectory>/</outputDirectory>
       <useProjectArtifact>true</useProjectArtifact>
-      <unpack>false</unpack>
+      <unpack>true</unpack>
       <scope>runtime</scope>
     </dependencySet>
   </dependencySets>
