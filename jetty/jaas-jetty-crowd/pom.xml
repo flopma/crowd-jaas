@@ -11,29 +11,14 @@
 	<dependencies>
 		<!-- Allowing Crowd REST calls -->
 		<dependency>
-			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-client</artifactId>
-			<version>1.19.3</version>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.jersey.contribs</groupId>
-			<artifactId>jersey-apache-client</artifactId>
-			<version>1.19.3</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.22</version>
-		</dependency>
-		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
-			<version>1.7.22</version>
+			<version>1.7.25</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-jaas</artifactId>
-			<version>9.0.0.v20130308</version>
+			<version>9.0.7.v20131107</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
