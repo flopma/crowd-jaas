@@ -11,7 +11,12 @@
 	<dependencies>
 		<!-- Allowing Crowd REST calls -->
 		<dependency>
-			<groupId>org.slf4j</groupId>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>1.19.4</version>
+        </dependency>
+        <dependency>
+   			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
 			<version>1.7.25</version>
 		</dependency>
