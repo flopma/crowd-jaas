@@ -92,11 +92,14 @@ public class CrowdLoginModule implements LoginModule {
 	private Principal userPrincipal = null;
 	private Set<JAASRole> rolePrincipals = null;
 	
-	public CrowdLoginModule() {}
+	public CrowdLoginModule() {
+	  LOG.info("Loaded Crowd client for JAAS");
+	}
 
 	/**
 	 * @see javax.security.auth.spi.LoginModule#initialize(javax.security.auth.Subject, javax.security.auth.callback.CallbackHandler, java.util.Map, java.util.Map)
 	 */
+	@Override
 	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
 		this.subject = subject;
 		this.callbackHandler = callbackHandler;
@@ -112,6 +115,7 @@ public class CrowdLoginModule implements LoginModule {
 	/**
 	 * @see javax.security.auth.spi.LoginModule#login()
 	 */
+	@Override
 	public boolean login() throws LoginException {
 		try {
 			if (callbackHandler == null) {
@@ -141,6 +145,7 @@ public class CrowdLoginModule implements LoginModule {
 	/**
 	 * @see javax.security.auth.spi.LoginModule#commit()
 	 */
+	@Override
 	public boolean commit() throws LoginException {
 		if (!authenticated) {
 			resetStateData();
@@ -175,6 +180,7 @@ public class CrowdLoginModule implements LoginModule {
 	/**
 	 * @see javax.security.auth.spi.LoginModule#abort()
 	 */
+	@Override
 	public boolean abort() throws LoginException {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug(String.format("abort called - previous login state: [%b]", authenticated));
@@ -197,6 +203,7 @@ public class CrowdLoginModule implements LoginModule {
 	/**
 	 * @see javax.security.auth.spi.LoginModule#logout()
 	 */
+	@Override
 	public boolean logout() throws LoginException {
 		// remove JAASRole from subject
 		subject.getPrincipals().remove(userPrincipal);
@@ -231,38 +238,45 @@ public class CrowdLoginModule implements LoginModule {
 	 * @throws URISyntaxException 
 	 */
 	private void restClientInit() throws URISyntaxException {
-		DefaultApacheHttpClientConfig clientConfig = new DefaultApacheHttpClientConfig();
-		clientConfig.getProperties().put(ApacheHttpClientConfig.PROPERTY_HANDLE_COOKIES, Boolean.TRUE);
-		clientConfig.getProperties().put(ApacheHttpClientConfig.PROPERTY_PREEMPTIVE_AUTHENTICATION, Boolean.TRUE);
-		clientConfig.getProperties().put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, getHttpTimeout());
-		clientConfig.getProperties().put(ClientConfig.PROPERTY_READ_TIMEOUT, getHttpTimeout());
-		clientConfig.getProperties().put(ClientConfig.PROPERTY_THREADPOOL_SIZE, getHttpMaxConnections());
+		LOG.info("Attempting Crowd REST client config...");
 		
-		crowdServer = new URI(getCrowdServerUrl()).resolve("rest/usermanagement/1/");
-		
-		ApacheHttpClientState httpState = new ApacheHttpClientState();
-		httpState.setCredentials(null, crowdServer.getHost(), crowdServer.getPort(), getApplicationName(), getApplicationPassword());
-		if (getHttpProxyHost().trim().length() > 0 && getHttpProxyPort() > 0) {
-			clientConfig.getProperties().put(ApacheHttpClientConfig.PROPERTY_PROXY_URI, getHttpProxyHost() + ':' + getHttpProxyPort());
+		try {
+			DefaultApacheHttpClientConfig clientConfig = new DefaultApacheHttpClientConfig();
+			clientConfig.getProperties().put(ApacheHttpClientConfig.PROPERTY_HANDLE_COOKIES, Boolean.TRUE);
+			clientConfig.getProperties().put(ApacheHttpClientConfig.PROPERTY_PREEMPTIVE_AUTHENTICATION, Boolean.TRUE);
+			clientConfig.getProperties().put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, getHttpTimeout());
+			clientConfig.getProperties().put(ClientConfig.PROPERTY_READ_TIMEOUT, getHttpTimeout());
+			clientConfig.getProperties().put(ClientConfig.PROPERTY_THREADPOOL_SIZE, getHttpMaxConnections());
 			
-			if (getHttpProxyUsername() != null && getHttpProxyPassword() != null) {
-				httpState.setProxyCredentials(null, getHttpProxyHost(), getHttpProxyPort(), getHttpProxyUsername(), getHttpProxyPassword());
+			crowdServer = new URI(getCrowdServerUrl()).resolve("rest/usermanagement/1/");
+/*			
+			ApacheHttpClientState httpState = new ApacheHttpClientState();
+			httpState.setCredentials(null, crowdServer.getHost(), crowdServer.getPort(), getApplicationName(), getApplicationPassword());
+			if (getHttpProxyHost().trim().length() > 0 && getHttpProxyPort() > 0) {
+				clientConfig.getProperties().put(ApacheHttpClientConfig.PROPERTY_PROXY_URI, getHttpProxyHost() + ':' + getHttpProxyPort());
+				
+				if (getHttpProxyUsername() != null && getHttpProxyPassword() != null) {
+					httpState.setProxyCredentials(null, getHttpProxyHost(), getHttpProxyPort(), getHttpProxyUsername(), getHttpProxyPassword());
+				}
 			}
+			clientConfig.getProperties().put(ApacheHttpClientConfig.PROPERTY_HTTP_STATE, httpState);
+*/			
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("HTTP Client config");
+				LOG.debug(getCrowdServerUrl());
+				LOG.debug(crowdServer.toString());
+				LOG.debug("PROPERTY_THREADPOOL_SIZE:" + clientConfig.getProperty(ClientConfig.PROPERTY_THREADPOOL_SIZE));
+				LOG.debug("PROPERTY_READ_TIMEOUT:" + clientConfig.getProperty(ClientConfig.PROPERTY_READ_TIMEOUT));
+				LOG.debug("PROPERTY_CONNECT_TIMEOUT:" + clientConfig.getProperty(ClientConfig.PROPERTY_CONNECT_TIMEOUT));
+				LOG.debug("PROPERTY_PROXY_URI:" + clientConfig.getProperty(ApacheHttpClientConfig.PROPERTY_PROXY_URI));
+				LOG.debug("Crowd application name:" + getApplicationName());
+			}
+			
+			client = ApacheHttpClient.create(clientConfig);
+		} catch (Exception e) {
+			LOG.error("Error occured during Crowd JAAS module init.", e);
+			throw new RuntimeException(e);
 		}
-		clientConfig.getProperties().put(ApacheHttpClientConfig.PROPERTY_HTTP_STATE, httpState);
-		
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("HTTP Client config");
-			LOG.debug(getCrowdServerUrl());
-			LOG.debug(crowdServer.toString());
-			LOG.debug("PROPERTY_THREADPOOL_SIZE:" + clientConfig.getProperty(ClientConfig.PROPERTY_THREADPOOL_SIZE));
-			LOG.debug("PROPERTY_READ_TIMEOUT:" + clientConfig.getProperty(ClientConfig.PROPERTY_READ_TIMEOUT));
-			LOG.debug("PROPERTY_CONNECT_TIMEOUT:" + clientConfig.getProperty(ClientConfig.PROPERTY_CONNECT_TIMEOUT));
-			LOG.debug("PROPERTY_PROXY_URI:" + clientConfig.getProperty(ApacheHttpClientConfig.PROPERTY_PROXY_URI));
-			LOG.debug("Crowd application name:" + getApplicationName());
-		}
-		
-		client = ApacheHttpClient.create(clientConfig);
 	}
 	
 	/**
