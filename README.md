@@ -42,6 +42,6 @@ If Rundeck needs to connect to Crowd through a proxy, use the following settings
 </code></pre>
 </li>
 <li>Setup Crowd to accept requests from rundeck</li>
-<li>Setup Crowd and rundeck to allow authorization to happen (Crowd groups / <a href="http://rundeck.org/docs/administration/access-control-policy.html">Rundeck ACL Policies</a>)</li>
+<li>Setup Crowd and rundeck to allow authorization to happen (Crowd groups / <a href="https://rundeck.org/docs/administration/security/access-control-policy.html">Rundeck ACL Policies</a>)</li>
 <li>Make sure to launch Rundeck with the JAAS login feature enabled (rundeck.jaaslogin=true). See https://rundeck.org/docs/administration/install/launcher.html#system-properties</li>
 </ol>
