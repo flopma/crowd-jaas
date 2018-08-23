@@ -33,6 +33,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
@@ -127,6 +128,12 @@ public class CrowdLoginModule implements LoginModule {
 			
 			String username = ((NameCallback) callbacks[0]).getName();
 			String password = (String) ((ObjectCallback) callbacks[1]).getObject();
+			if (password == null) {
+				char[] c = ((PasswordCallback) callbacks[2]).getPassword();
+				if ( c != null) {
+					password = new String(c);
+				}
+			}
 			
 			if (username == null || password == null) {
 				authenticated = false;
@@ -214,10 +221,15 @@ public class CrowdLoginModule implements LoginModule {
 		return true;
 	}
 	
+	/**
+	 * Copied from https://github.com/eclipse/jetty.project/blob/jetty-9.4.11.v20180605/jetty-jaas/src/main/java/org/eclipse/jetty/jaas/spi/AbstractLoginModule.java
+	 * @return
+	 */
 	private Callback[] configureCallbacks() {
-		Callback[] callbacks = new Callback[2];
+		Callback[] callbacks = new Callback[3];
 		callbacks[0] = new NameCallback("Enter user name");
 		callbacks[1] = new ObjectCallback();
+		callbacks[2] = new PasswordCallback("Enter password", false); //only used if framework does not support the ObjectCallback
 		return callbacks;
 	}
 	
