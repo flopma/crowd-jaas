@@ -5,7 +5,7 @@
 
 	<groupId>be.greenhand.jaas</groupId>
 	<artifactId>jaas-jetty-crowd</artifactId>
-	<version>1.0</version>
+	<version>1.1</version>
 	<packaging>jar</packaging>
 
 	<name>jaas-jetty-crowd</name>
@@ -20,12 +20,12 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
-			<version>1.7.25</version>
+			<version>1.7.30</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-jaas</artifactId>
-			<version>9.4.11.v20180605</version>
+			<version>9.4.26.v20200117</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
