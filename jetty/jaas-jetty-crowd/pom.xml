@@ -5,10 +5,15 @@
 
 	<groupId>be.greenhand.jaas</groupId>
 	<artifactId>jaas-jetty-crowd</artifactId>
-	<version>1.1</version>
+	<version>1.2</version>
 	<packaging>jar</packaging>
 
 	<name>jaas-jetty-crowd</name>
+
+	<properties>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
 
 	<dependencies>
 		<!-- Allowing Crowd REST calls -->
@@ -20,12 +25,12 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
-			<version>1.7.30</version>
+			<version>1.7.36</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-jaas</artifactId>
-			<version>9.4.26.v20200117</version>
+			<version>9.4.48.v20220622</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
@@ -33,7 +38,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.6.0</version>
 				<configuration>
 					<descriptors>
 						<descriptor>src/main/assembly/jar-with-dependencies-packed.xml</descriptor>

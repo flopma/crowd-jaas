@@ -2,14 +2,14 @@ JAAS LoginModule for Crowd
 
 ---
 
-This repository contains a JAAS LoginModule for Rundeck v3.3.x which integrates with Atlassian Crowd.
+This repository contains a JAAS LoginModule for Rundeck v4.14.x which integrates with Atlassian Crowd.
 
 <ol>
 <li>Clone the source
 
 <pre><code>$ git clone -v --progress https://github.com/flopma/crowd-jaas.git
 $ cd crowd-jaas
-$ git checkout rundeck-3.3</code></pre>
+$ git checkout rundeck-4.14</code></pre>
 
 </li>
 <li>Build the jar from the source
